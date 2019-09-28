@@ -9,21 +9,32 @@ public class SquareDriver {
 	
   public static double[] preCoor;
   public static double[] currVector;
+  public static double[] preVector;
   private static double distance;
+  private static double Theta_of_PreVector;
+  private static double Theta_of_CurrVector;
 
 /**
    * Drives the robot in a square of size 3x3 Tiles. It is to be run in parallel
    * with the odometer and odometer correction classes to allow testing their functionality.
    */
-  public static void turnTo(double theta) {
-	  Math.atan(x/y)
+
+
+  public static void turnTo(double Theta_of_PreVector,double Theta_of_CurrVector) {
+
+	//Celine: please write here, you may need other input to calculate the angle. Here I provide 
+	//the angle of previous and current vector relative to x-axis in radians.
+	  
   }
+  
+  
+  
   public static void travalTo(double x, double y) {
-      if(preCoor[0]==0.0 && preCoor[1]==0.0) {
+      if(preCoor==null) {
     	  preCoor=defaultCoordinate;
     	  currVector[0]=x-preCoor[0];
           currVector[1]=y-preCoor[1];
-          distance=Math.sqrt(currVector[0]*currVector[0]+currVector[1]*currVector[1]);
+          distance=TILE_SIZE*Math.sqrt((currVector[0]*currVector[0])+(currVector[1]*currVector[1]));
           
         // spawn a new Thread to avoid this method blocking
         (new Thread() {
@@ -33,23 +44,19 @@ public class SquareDriver {
             rightMotor.stop();
             leftMotor.setAcceleration(ACCELERATION);
             rightMotor.setAcceleration(ACCELERATION);
+            
             // Sleep for 2 seconds
             Main.sleepFor(TIMEOUT_PERIOD);
+            
 
+              // drive forward by a given distance
+            leftMotor.setSpeed(FORWARD_SPEED);
+            rightMotor.setSpeed(FORWARD_SPEED);
+            leftMotor.rotate(convertDistance(distance), true);
+            rightMotor.rotate(convertDistance(distance), false);
 
-              // drive forward three tiles
-              leftMotor.setSpeed(FORWARD_SPEED);
-              rightMotor.setSpeed(FORWARD_SPEED);
-              
-             leftMotor.rotate(convertDistance(currVector[0] * distance), true);
-             rightMotor.rotate(convertDistance(currVector[1] * distance), false);
-
-              // turn 90 degrees clockwise
-             leftMotor.setSpeed(ROTATE_SPEED);
-             rightMotor.setSpeed(ROTATE_SPEED);
-
-              leftMotor.rotate(convertAngle(90.0), true);
-              rightMotor.rotate(-convertAngle(90.0), false);
+            preVector[0]=1;
+            preVector[1]=1;
 
           }
         }).start();
@@ -57,37 +64,47 @@ public class SquareDriver {
       else {  currVector[0]=x-preCoor[0];
       currVector[1]=y-preCoor[1];
       distance=Math.sqrt(currVector[0]*currVector[0]+currVector[1]*currVector[1]);
+      
+      Theta_of_PreVector = Math.atan(preVector[1]/preVector[0]);
+      Theta_of_CurrVector = Math.atan(currVector[1]/currVector[0]);
+      
+
     // spawn a new Thread to avoid this method blocking
     (new Thread() {
       public void run() {
-        // reset the motors
-        leftMotor.stop();
-        rightMotor.stop();
-        leftMotor.setAcceleration(ACCELERATION);
-        rightMotor.setAcceleration(ACCELERATION);
-        // Sleep for 2 seconds
-        Main.sleepFor(TIMEOUT_PERIOD);
+    	   // reset the motors
+          leftMotor.stop();
+          rightMotor.stop();
+          leftMotor.setAcceleration(ACCELERATION);
+          rightMotor.setAcceleration(ACCELERATION);
+          
+          // Sleep for 2 seconds
+          Main.sleepFor(TIMEOUT_PERIOD);
+          
+       // turn an appropriate angle
+          leftMotor.setSpeed(ROTATE_SPEED);
+          rightMotor.setSpeed(ROTATE_SPEED);
+          leftMotor.rotate(convertAngle(turnTo(a certain angle)), true);
+          rightMotor.rotate(convertAngle(turnTo(a certain angle)), false);
 
-
-          // drive forward three tiles
+            // drive forward by a given distance
           leftMotor.setSpeed(FORWARD_SPEED);
           rightMotor.setSpeed(FORWARD_SPEED);
-          
-         leftMotor.rotate(convertDistance(currVector[0] * distance), true);
-         rightMotor.rotate(convertDistance(currVector[1] * distance), false);
-
-          // turn 90 degrees clockwise
-         leftMotor.setSpeed(ROTATE_SPEED);
-         rightMotor.setSpeed(ROTATE_SPEED);
-
-          leftMotor.rotate(convertAngle(90.0), true);
-          rightMotor.rotate(-convertAngle(90.0), false);
+          leftMotor.rotate(convertDistance(distance), true);
+          rightMotor.rotate(convertDistance(distance), false);
 
       }
     }).start();
   }
     preCoor[0]=x;
-    preCoor[0]=y;
+    preCoor[1]=y;
+    if(preVector!=null) {
+        preVector[0]=x-preCoor[0];
+        preVector[1]=y-preCoor[1];
+    }
+    else {
+    	preVector= {0,0};
+    }
   }
 
   /**
